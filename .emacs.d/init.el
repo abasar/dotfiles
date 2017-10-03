@@ -1,5 +1,4 @@
-(require 'package)
-(setq package-enable-at-startup nil)
+(require 'package) (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
@@ -22,7 +21,7 @@
  '(linum-relative-global-mode t)
  '(package-selected-packages
    (quote
-    (evil-leader neotree ivy color-theme-sanityinc-tomorrow color-theme-tomorrow solaire-mode paredit linum-relative sublime-themes doom-themes evil use-package))))
+    (pdf-tools elpy nav-flash powerline evil-leader neotree ivy color-theme-sanityinc-tomorrow color-theme-tomorrow solaire-mode paredit linum-relative sublime-themes doom-themes evil use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -83,24 +82,40 @@
   :config
   (ivy-mode 1))
  (neotree
-  ;:init
-  ;(add-to-list 'evil-emacs-state-modes 'neotree-mode)
+  :init
+  (setq neo-smart-open t)
+  (setq neotree-open-p nil)
   :config
   (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
   (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
   (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
   (evil-define-key 'normal neotree-mode-map (kbd "<backtab>") (lambda () (interactive) (neotree-dir ".."))))
+ (spaceline
+  :config
+  (require 'spaceline-config)
+  (spaceline-emacs-theme)
+  (spaceline-toggle-buffer-size-off)
+  (spaceline-toggle-minor-modes-off)
+  (spaceline-toggle-buffer-position-off)
+  (spaceline-toggle-hud-off)
+  (spaceline-toggle-buffer-encoding-abbrev-off)
+  (spaceline-toggle-line-column-off))
+ (elpy
+  :config
+  (elpy-enable)
+  (pyvenv-activate "~/venv/"))
+ (pdf-tools)
  (evil-leader
-  :init
   :config
   (evil-leader/set-leader "<SPC>")
   (global-evil-leader-mode)
-  (evil-leader/set-key "f t" 'neotree-toggle)))
+  (evil-leader/set-key "f t" 'neotree-show)))
 
-(menu-bar-mode 1)
+(menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
+(global-hl-line-mode 1)
 
 (set-face-attribute
  'default nil
