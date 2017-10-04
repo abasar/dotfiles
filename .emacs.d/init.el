@@ -21,7 +21,7 @@
  '(linum-relative-global-mode t)
  '(package-selected-packages
    (quote
-    (pdf-tools elpy nav-flash powerline evil-leader neotree ivy color-theme-sanityinc-tomorrow color-theme-tomorrow solaire-mode paredit linum-relative sublime-themes doom-themes evil use-package))))
+    (geiser sphinx-doc pdf-tools elpy nav-flash powerline evil-leader neotree ivy color-theme-sanityinc-tomorrow color-theme-tomorrow solaire-mode paredit linum-relative sublime-themes doom-themes evil use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -106,11 +106,21 @@
   (elpy-enable)
   (pyvenv-activate "~/venv/"))
  (pdf-tools)
+ (sphinx-doc
+  :config
+  (add-hook 'python-mode-hook (lambda ()
+				(require 'sphinx-doc)
+				(sphinx-doc-mode t))))
+ (geiser
+  :config
+  (setq geiser-active-implementations '(chicken))
+  (add-hook 'geiser-repl-mode-hook #'enable-paredit-mode))
  (evil-leader
   :config
   (evil-leader/set-leader "<SPC>")
   (global-evil-leader-mode)
-  (evil-leader/set-key "f t" 'neotree-show)))
+  (evil-leader/set-key "f t" 'neotree-show)
+  (evil-leader/set-key-for-mode 'python-mode "p d" 'sphinx-doc)))
 
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)

@@ -161,6 +161,6 @@ bar {
 new_window 1pixel
 
 #smart_gaps on
-#
-#gaps inner 10
-#gaps outer 2
+
+gaps inner 10
+gaps outer 2
