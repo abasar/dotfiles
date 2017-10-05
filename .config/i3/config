@@ -164,3 +164,5 @@ new_window 1pixel
 
 gaps inner 10
 gaps outer 2
+
+#exec feh --bg-scale ~/test5.png
