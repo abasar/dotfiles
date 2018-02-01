@@ -127,6 +127,9 @@
 (tool-bar-mode -1)
 (global-hl-line-mode 1)
 
+(load (expand-file-name "/usr/lib/quicklisp/slime-helper.el"))
+(setq inferior-lisp-program "ccl")
+
 (set-face-attribute
  'default nil
  :family "Fira Mono"

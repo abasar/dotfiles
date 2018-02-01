@@ -1,0 +1,2 @@
+* Notes:
+** amdgpu works better than radeon on my pc
