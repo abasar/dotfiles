@@ -1,6 +1,8 @@
-(require 'package) (setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/")) (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+; ---- Setup ------
+(require 'package)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -8,129 +10,133 @@
   (package-install 'use-package))
 
 (eval-when-compile
-  (require 'use-package)) 
+  (require 'use-package))
+
+; ----- Packages and Advanced Settings ------
+(global-company-mode 1)
+(setq company-idle-delay 0.1)
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+(tool-bar-mode -1)
+
+(use-package evil
+  :ensure t
+  :init
+  (setq evil-want-C-u-scroll t)
+  :config
+  (evil-mode 1))
+
+(use-package general
+  :ensure t
+  :config
+  (general-create-definer leader-def :prefix "SPC")
+  (general-create-definer project-def :prefix "SPC p")
+  (general-create-definer search-def :prefix "SPC /"))
+
+(set-face-attribute 'default nil
+		    :family "Hasklig"
+		    :height 115
+		    :weight 'normal
+		    :width 'normal)
+
+(use-package swiper-helm
+  :ensure t
+  :defer t
+  :init
+  (search-def :states '(normal visual)
+    "b" 'swiper-helm))
+
+(use-package hasklig-mode
+  :ensure t
+  :config (hasklig-mode 1))
+
+(use-package helm
+  :ensure t
+  :after (general)
+  :config
+  (helm-mode 1)
+  (general-define-key
+  	   "M-x" 'helm-M-x
+  	   "C-x C-f" 'helm-find-files)
+  (leader-def :states 'normal
+    "," 'helm-mini
+    "." 'helm-find-files))
+
+(use-package projectile
+  :ensure t
+  :defer t
+  :init
+  (project-def :keymaps 'normal
+	       "p" 'projectile-switch-project
+	       "/" 'projectile-find-file))
+
+(use-package helm-rg
+  :ensure t
+  :defer t)
+
+(use-package helm-projectile
+  :ensure t
+  :defer t
+  :after (projectile general helm-rg)
+  :init
+  (project-def :states '(normal)
+    "p" 'helm-projectile
+    "/" 'helm-projectile-find-file-dwim
+    "r" 'helm-projectile-recentf
+    "b" 'helm-projectile-switch-to-buffer)
+  (search-def :states '(normal visual)
+    "p" 'helm-projectile-rg))
+
+(use-package lsp-mode
+  :ensure t
+  :defer t
+  :hook ((python-mode-hook . lsp-deferred))
+  :config
+  (setq lsp-pyls-server-command '("python3" "-m" "pyls"))
+  :commands lsp)
+
+(use-package smart-mode-line-atom-one-dark-theme
+  :ensure t)
+
+(use-package smart-mode-line
+  :ensure t
+  :after (smart-mode-line-atom-one-dark-theme)
+  :config
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme 'atom-one-dark)
+  (sml/setup))
+
+(use-package doom-themes
+  :ensure t
+  :config (load-theme 'doom-spacegrey t))
+
+(use-package company-lsp
+  :ensure t
+  :defer t
+  :commands company-lsp
+  :config (push 'company-lsp company-backends))
+
+(use-package helm-lsp
+  :ensure t
+  :defer t
+  :commands helm-lsp-workspace-symbol)
+
+; ----- Garbage ------
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
  '(custom-safe-themes
    (quote
-    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
- '(linum-relative-global-mode t)
+    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "855eb24c0ea67e3b64d5d07730b96908bac6f4cd1e5a5986493cbac45e9d9636" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" default)))
  '(package-selected-packages
    (quote
-    (geiser sphinx-doc pdf-tools elpy nav-flash powerline evil-leader neotree ivy color-theme-sanityinc-tomorrow color-theme-tomorrow solaire-mode paredit linum-relative sublime-themes doom-themes evil use-package))))
+    (minions moody swiper-helm helm-rg helm evil use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
-
-(defmacro use-install-package (name &rest args)
-  `(use-package
-     ,name
-     :ensure t
-     ,@args)) 
-
-
-(defmacro setup-packages (&rest packages)
-  `(progn
-     ,@(let ((use-install-list '()))
-	 (dolist
-	     (package packages use-install-list)
-	   (setf use-install-list
-		 (append (list `(use-install-package ,@package))
-			 use-install-list))))))
-
-
-(setup-packages
- (evil
-  :config
-  (evil-mode 1))
- (doom-themes
-  :config
-  (load-theme 'doom-tomorrow-night t)
-  (doom-themes-neotree-config)
-  (doom-themes-visual-bell-config)
-  (doom-themes-org-config))
- (linum-relative
-  :init
-  (setq linum-relative-current-symbol "")
-  :config
-  (linum-relative-on))
- (paredit
-  :config
-  (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
-  (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-  (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-  (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-  (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-  (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
- (solaire-mode
-  :config
-  (add-hook 'after-change-major-mode-hook #'turn-on-solaire-mode)
-  (add-hook 'minibuffer-setup-hook #'solaire-mode-in-minibuffer)
-  (solaire-mode-swap-bg))
- (ivy
-  :init
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
-  :config
-  (ivy-mode 1))
- (neotree
-  :init
-  (setq neo-smart-open t)
-  (setq neotree-open-p nil)
-  :config
-  (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
-  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
-  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "<backtab>") (lambda () (interactive) (neotree-dir ".."))))
- (spaceline
-  :config
-  (require 'spaceline-config)
-  (spaceline-emacs-theme)
-  (spaceline-toggle-buffer-size-off)
-  (spaceline-toggle-minor-modes-off)
-  (spaceline-toggle-buffer-position-off)
-  (spaceline-toggle-hud-off)
-  (spaceline-toggle-buffer-encoding-abbrev-off)
-  (spaceline-toggle-line-column-off))
- (elpy
-  :config
-  (elpy-enable)
-  (pyvenv-activate "~/venv/"))
- (pdf-tools)
- (sphinx-doc
-  :config
-  (add-hook 'python-mode-hook (lambda ()
-				(require 'sphinx-doc)
-				(sphinx-doc-mode t))))
- (geiser
-  :config
-  (setq geiser-active-implementations '(chicken))
-  (add-hook 'geiser-repl-mode-hook #'enable-paredit-mode))
- (evil-leader
-  :config
-  (evil-leader/set-leader "<SPC>")
-  (global-evil-leader-mode)
-  (evil-leader/set-key "f t" 'neotree-show)
-  (evil-leader/set-key-for-mode 'python-mode "p d" 'sphinx-doc)))
-
-(menu-bar-mode -1)
-(toggle-scroll-bar -1)
-(tool-bar-mode -1)
-(global-hl-line-mode 1)
-
-(load (expand-file-name "/usr/lib/quicklisp/slime-helper.el"))
-(setq inferior-lisp-program "ccl")
-
-(set-face-attribute
- 'default nil
- :family "Fira Mono"
- :height 90)
+ '(mode-line ((t (:background "#232830" :box (:line-width 3 :color "#2C323C"))))))
