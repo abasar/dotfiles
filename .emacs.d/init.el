@@ -26,29 +26,30 @@
   :config
   (evil-mode 1))
 
+(use-package evil-collection
+  :ensure t
+  :config
+  (evil-collection-init))
+
 (use-package general
   :ensure t
   :config
   (general-create-definer leader-def :prefix "SPC")
   (general-create-definer project-def :prefix "SPC p")
-  (general-create-definer search-def :prefix "SPC /"))
+  (general-create-definer search-def :prefix "SPC /")
+  (general-create-definer git-def :prefix "SPC g"))
 
 (set-face-attribute 'default nil
-		    :family "Hasklig"
-		    :height 115
-		    :weight 'normal
-		    :width 'normal)
+		    :family "Hack Nerd Font"
+		    :height 128
+		    :weight 'medium
+		    :width 'medium)
 
 (use-package swiper-helm
   :ensure t
-  :defer t
   :init
   (search-def :states '(normal visual)
     "b" 'swiper-helm))
-
-(use-package hasklig-mode
-  :ensure t
-  :config (hasklig-mode 1))
 
 (use-package helm
   :ensure t
@@ -63,24 +64,26 @@
     "." 'helm-find-files))
 
 (use-package projectile
-  :ensure t
-  :defer t
-  :init
-  (project-def :keymaps 'normal
-	       "p" 'projectile-switch-project
-	       "/" 'projectile-find-file))
+  :ensure t)
 
 (use-package helm-rg
+  :ensure t)
+
+(use-package magit
   :ensure t
-  :defer t)
+  :config
+  (git-def :states 'normal
+   "g" 'magit))
+
+(use-package evil-magit
+  :ensure t)
 
 (use-package helm-projectile
   :ensure t
-  :defer t
   :after (projectile general helm-rg)
   :init
   (project-def :states '(normal)
-    "p" 'helm-projectile
+    "p" 'helm-projectile-switch-project
     "/" 'helm-projectile-find-file-dwim
     "r" 'helm-projectile-recentf
     "b" 'helm-projectile-switch-to-buffer)
@@ -89,10 +92,9 @@
 
 (use-package lsp-mode
   :ensure t
-  :defer t
-  :hook ((python-mode-hook . lsp-deferred))
   :config
   (setq lsp-pyls-server-command '("python3" "-m" "pyls"))
+  (add-hook 'python-mode-hook 'lsp)
   :commands lsp)
 
 (use-package smart-mode-line-atom-one-dark-theme
@@ -110,15 +112,26 @@
   :ensure t
   :config (load-theme 'doom-spacegrey t))
 
+(use-package ggtags
+  :ensure t
+  :config
+  (add-hook 'c-mode-hook 'ggtags-mode)
+  (add-hook 'c++-mode-hook 'ggtags-mode))
+
+(use-package evil-numbers
+  :ensure t
+  :after (evil general)
+  :init (general-define-key
+	 "C-c a" 'evil-numbers/inc-at-pt
+	 "C-c x" 'evil-numbers/dec-at-pti))
+
 (use-package company-lsp
   :ensure t
-  :defer t
   :commands company-lsp
   :config (push 'company-lsp company-backends))
 
 (use-package helm-lsp
   :ensure t
-  :defer t
   :commands helm-lsp-workspace-symbol)
 
 ; ----- Garbage ------
@@ -133,7 +146,7 @@
     ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "855eb24c0ea67e3b64d5d07730b96908bac6f4cd1e5a5986493cbac45e9d9636" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" default)))
  '(package-selected-packages
    (quote
-    (minions moody swiper-helm helm-rg helm evil use-package))))
+    (evil-collection evil-magit magit helm-gtags evil-numbers minions moody swiper-helm helm-rg helm evil use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
